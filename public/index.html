@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Check whether your email or password has appeared in a data breach.">
+<title>Spillcheck</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,500..800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: one narrow column; the search field is the hero, verdict then evidence below */
+:root{
+  --bg:#eef1f4; --surface:#ffffff; --ink:#15202b; --muted:#5a6775; --line:#d6dde4;
+  --accent:#2448c9; --accent-ink:#ffffff; --danger:#b9321c; --danger-bg:#fbe9e5;
+  --safe:#1b7a4c; --safe-bg:#e3f4ea; --warn:#9a5c00; --warn-bg:#fbf0dc;
+  --f-display:"Archivo","Arial Narrow",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e141a; --surface:#16202a; --ink:#e4eaf0; --muted:#97a4b1; --line:#283442;
+  --accent:#86a5ff; --accent-ink:#0b1430; --danger:#ff8a72; --danger-bg:#3a1a14;
+  --safe:#5bd297; --safe-bg:#11301f; --warn:#f2b552; --warn-bg:#33260f; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e141a; --surface:#16202a; --ink:#e4eaf0; --muted:#97a4b1; --line:#283442;
+  --accent:#86a5ff; --accent-ink:#0b1430; --danger:#ff8a72; --danger-bg:#3a1a14;
+  --safe:#5bd297; --safe-bg:#11301f; --warn:#f2b552; --warn-bg:#33260f; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:16px/1.55 var(--f-body);padding-inline:16px}
+.wrap{max-width:46rem;margin:0 auto;padding-block:20px 48px;display:grid;gap:28px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.mark{font-family:var(--f-display);font-stretch:70%;font-weight:800;font-size:1.5rem;letter-spacing:.01em;text-transform:uppercase}
+.mark span{color:var(--accent)}
+.badge{font:500 .75rem/1 var(--f-mono);letter-spacing:.06em;text-transform:uppercase;padding:6px 10px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+.badge.live{color:var(--safe);border-color:currentColor}
+.badge.demo{color:var(--warn);border-color:currentColor}
+
+.hero{display:grid;gap:16px}
+h1{font-family:var(--f-display);font-stretch:85%;font-weight:750;font-size:clamp(2rem,6vw,3.1rem);line-height:1.02;margin:0;text-wrap:balance;letter-spacing:-.01em}
+.lede{margin:0;color:var(--muted);max-width:60ch}
+
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);overflow-x:auto}
+.tab{appearance:none;background:none;border:0;border-bottom:3px solid transparent;color:var(--muted);font:600 .95rem var(--f-body);padding:10px 14px;cursor:pointer;white-space:nowrap}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.tab:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.field{display:flex;gap:8px;flex-wrap:wrap}
+.field .box{flex:1 1 16rem;min-width:0;display:flex;align-items:center;background:var(--surface);border:1.5px solid var(--line);border-radius:10px}
+.field .box:focus-within{border-color:var(--accent)}
+.field input,.field select{flex:1;min-width:0;border:0;background:transparent;color:var(--ink);font:500 1.05rem var(--f-body);padding:14px 16px}
+.field input:focus,.field select:focus{outline:none}
+.field select{flex:0 0 auto;border:1.5px solid var(--line);border-radius:10px;background:var(--surface);font-size:.95rem}
+.ghost{appearance:none;background:none;border:0;color:var(--muted);font:500 .85rem var(--f-body);padding:0 14px;cursor:pointer}
+.go{appearance:none;border:0;border-radius:10px;background:var(--accent);color:var(--accent-ink);font:650 1rem var(--f-body);padding:14px 22px;cursor:pointer}
+.go:disabled{opacity:.6;cursor:progress}
+.hint{margin:0;color:var(--muted);font-size:.9rem}
+.hint button{appearance:none;background:none;border:0;padding:0;color:var(--accent);font:inherit;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+
+.banner{border:1px solid var(--line);background:var(--warn-bg);color:var(--ink);border-radius:10px;padding:12px 16px;font-size:.92rem}
+.banner strong{color:var(--warn)}
+
+#results{display:grid;gap:18px;min-width:0}
+.verdict{border-radius:14px;padding:22px 22px 20px;display:grid;gap:6px}
+.verdict.bad{background:var(--danger-bg)}
+.verdict.good{background:var(--safe-bg)}
+.verdict .k{font:500 .75rem var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);overflow-wrap:anywhere}
+.verdict h2{font-family:var(--f-display);font-stretch:80%;font-weight:750;font-size:clamp(1.6rem,4.5vw,2.2rem);line-height:1.05;margin:0;text-wrap:balance}
+.verdict.bad h2{color:var(--danger)}
+.verdict.good h2{color:var(--safe)}
+.verdict p{margin:0;max-width:62ch}
+
+.hash{font:500 .9rem/1.4 var(--f-mono);overflow-wrap:anywhere;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:grid;gap:8px}
+.hash .row{word-break:break-all}
+.hash .pre{background:var(--accent);color:var(--accent-ink);padding:1px 3px;border-radius:3px}
+.hash .suf{color:var(--muted)}
+.hash .legend{display:flex;gap:16px;flex-wrap:wrap;font:400 .78rem var(--f-body);color:var(--muted)}
+.hash .sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+
+.secHead{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:8px}
+.secHead h3{margin:0;font:600 .8rem var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.secHead span{font-size:.85rem;color:var(--muted);font-variant-numeric:tabular-nums}
+
+.list{display:grid;gap:12px}
+.breach{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px;display:grid;gap:8px;min-width:0}
+.breach .h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.breach h4{margin:0;font:650 1.08rem var(--f-body)}
+.breach .dom{font:400 .82rem var(--f-mono);color:var(--muted);overflow-wrap:anywhere}
+.breach .meta{display:flex;gap:6px 18px;flex-wrap:wrap;font-size:.86rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.breach .meta b{color:var(--ink);font-weight:600}
+.breach .desc{margin:0;font-size:.92rem;color:var(--muted);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{font:500 .75rem var(--f-body);padding:3px 9px;border-radius:999px;background:var(--bg);color:var(--muted);border:1px solid var(--line)}
+.chip.hot{background:var(--danger-bg);color:var(--danger);border-color:transparent}
+.chip.flag{background:var(--warn-bg);color:var(--warn);border-color:transparent}
+
+.todo{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+.todo h3{margin:0 0 8px;font:650 1rem var(--f-body)}
+.todo ol{margin:0;padding-left:1.2rem;display:grid;gap:4px;font-size:.93rem}
+.more{justify-self:center;appearance:none;background:var(--surface);border:1px solid var(--line);color:var(--ink);border-radius:999px;padding:10px 18px;font:600 .9rem var(--f-body);cursor:pointer}
+.err{background:var(--warn-bg);border-radius:12px;padding:16px 18px}
+.err b{color:var(--warn)}
+footer{color:var(--muted);font-size:.82rem;border-top:1px solid var(--line);padding-top:16px;display:grid;gap:6px}
+footer p{margin:0;max-width:70ch}
+footer a{color:var(--accent)}
+@media (prefers-reduced-motion:no-preference){.verdict,.breach{animation:rise .25s ease-out both}}
+@keyframes rise{from{transform:translateY(4px)}to{transform:none}}
+body{margin:0}[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="mark">Spill<span>check</span></div>
+    <span id="modeBadge" class="badge">Connecting…</span>
+  </header>
+
+  <section class="hero">
+    <h1>Has your account turned up in a data breach?</h1>
+    <p class="lede">Check an email address against known breaches, or test whether a password appears in leaked password lists. Your password never leaves this device in full.</p>
+
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" id="tab-email" aria-selected="true" data-tab="email">Email address</button>
+      <button class="tab" role="tab" id="tab-pw" aria-selected="false" data-tab="pw">Password</button>
+      <button class="tab" role="tab" id="tab-cat" aria-selected="false" data-tab="cat">Breach catalogue</button>
+    </div>
+
+    <form id="emailForm" class="field" novalidate>
+      <div class="box"><input id="emailInput" type="email" autocomplete="email" placeholder="you@example.com" aria-label="Email address" spellcheck="false"></div>
+      <button class="go" id="emailGo" type="submit">Check email</button>
+    </form>
+
+    <form id="pwForm" class="field" hidden novalidate>
+      <div class="box">
+        <input id="pwInput" type="password" autocomplete="off" placeholder="Enter a password to test" aria-label="Password">
+        <button class="ghost" id="pwToggle" type="button">Show</button>
+      </div>
+      <button class="go" id="pwGo" type="submit">Check password</button>
+    </form>
+
+    <div id="catForm" class="field" hidden>
+      <div class="box"><input id="catSearch" type="search" placeholder="Filter by name or domain" aria-label="Filter breaches"></div>
+      <select id="catSort" aria-label="Sort breaches">
+        <option value="added">Recently added</option>
+        <option value="size">Largest first</option>
+        <option value="date">Breach date</option>
+      </select>
+    </div>
+
+    <p class="hint" id="hint"></p>
+  </section>
+
+  <div id="banner" class="banner" hidden></div>
+  <section id="results" aria-live="polite"></section>
+
+  <footer>
+    <p>Breach and password data come from the public Have I Been Pwned APIs, by Troy Hunt, licensed CC BY 4.0. Passwords are checked with k-anonymity: only the first 5 characters of the SHA-1 hash are sent, and the match happens on your device.</p>
+    <p>A clean result covers only breaches that have been collected. It does not prove an account is safe.</p>
+  </footer>
+</div>
+
+<script>
+(() => {
+const $ = id => document.getElementById(id);
+const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
+const fmt = n => Number(n).toLocaleString('en-US');
+const compact = n => new Intl.NumberFormat('en', {notation:'compact', maximumFractionDigits:1}).format(n);
+const fdate = d => d ? new Date(String(d).slice(0,10)+'T00:00:00Z').toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'}) : 'Unknown';
+const strip = html => new DOMParser().parseFromString(html || '', 'text/html').body.textContent.trim();
+const EMAIL_RE = /^[^\s@]{1,64}@[^\s@]+\.[^\s@]{2,}$/;
+const HOT = new Set(['Passwords','Credit cards','Partial credit card data','Bank account numbers','Passport numbers','Social security numbers','Government issued IDs','Dates of birth','Security questions and answers','Auth tokens','Health insurance information','Private messages','Password hints','Historical passwords']);
+
+/* ---------- Sample data, used only when no server is reachable ---------- */
+const DEMO_BREACHES = [
+  {Name:'Meridian',Title:'Meridian Fitness',Domain:'meridianfit.example',BreachDate:'2024-06-30',AddedDate:'2024-09-02',PwnCount:2045778,IsVerified:true,IsSensitive:false,Description:'A fitness tracking app exposed a database backup containing account records and logged workout locations.',DataClasses:['Email addresses','Geographic locations','Genders','Passwords']},
+  {Name:'Quillnote',Title:'Quillnote',Domain:'quillnote.example',BreachDate:'2023-02-14',AddedDate:'2023-05-11',PwnCount:98410,IsVerified:true,IsSensitive:false,Description:'A note-taking service had its user table scraped through an unauthenticated API endpoint.',DataClasses:['Email addresses','Usernames']},
+  {Name:'Harbourline',Title:'Harbourline Travel',Domain:'harbourline.example',BreachDate:'2021-11-20',AddedDate:'2022-03-08',PwnCount:3560112,IsVerified:true,IsSensitive:false,Description:'A travel booking site lost customer profiles including passport details stored for faster check-in.',DataClasses:['Email addresses','Names','Dates of birth','Passport numbers','Phone numbers']},
+  {Name:'Northwind',Title:'Northwind Outfitters',Domain:'northwind-outfitters.example',BreachDate:'2019-03-12',AddedDate:'2019-07-21',PwnCount:1284330,IsVerified:true,IsSensitive:false,Description:'An outdoor retailer suffered a breach of its loyalty programme database. Passwords were stored as unsalted MD5 hashes.',DataClasses:['Email addresses','Names','Passwords','Phone numbers']},
+  {Name:'LanternGames',Title:'Lantern Games',Domain:'lanterngames.example',BreachDate:'2018-01-09',AddedDate:'2018-06-02',PwnCount:7912003,IsVerified:false,IsSensitive:false,Description:'Data said to come from a game studio’s community site circulated on a trading forum. The studio has not confirmed it.',DataClasses:['Email addresses','IP addresses','Passwords','Usernames']},
+  {Name:'Pixelforge',Title:'Pixelforge Forums',Domain:'pixelforge.example',BreachDate:'2016-08-04',AddedDate:'2017-01-15',PwnCount:412907,IsVerified:true,IsSensitive:false,Description:'A vBulletin forum for digital artists was compromised through an outdated plugin.',DataClasses:['Email addresses','IP addresses','Passwords','Usernames']}
+];
+const DEMO_ACCOUNTS = {'test@example.com':['Harbourline','Northwind','Pixelforge'],'ana@example.org':['Meridian']};
+const DEMO_HASHES = {'5BAA61E4C9B93F3F0682250B6CF8331B7EE68FD8':9500000,'7C4A8D09CA3762AF61E59520943DC26494F8941B':42000000,'B1B3773A05C0ED0176787A4F1574FF0075F7521E':3900000,'B7A875FC1EA228B9061041B7CEC4BD3C52AB3CE3':580000,'EE8D8728F435FD550F83852AABAB5234CE1DA528':2100000};
+
+let live = false, emailLookup = false, catalogue = null, tab = 'email';
+
+async function detect(){
+  try {
+    const r = await fetch('api/health', {cache:'no-store'});
+    if (r.ok && (r.headers.get('content-type')||'').includes('json')) { const j = await r.json(); live = !!j.ok; emailLookup = !!j.emailLookup; }
+  } catch(e) {}
+  const b = $('modeBadge');
+  b.className = 'badge ' + (live ? 'live' : 'demo');
+  b.textContent = live ? 'Live data' : 'Sample data';
+  if (!live) {
+    showBanner('<strong>Preview mode.</strong> No server is connected, so this page uses made-up sample breaches. Run the included server to check real accounts and passwords.');
+  } else if (!emailLookup) {
+    showBanner('<strong>Email lookups are off.</strong> Add an HIBP API key to the server to enable them. Password checks and the breach catalogue work without one.');
+  }
+}
+function showBanner(html){ const b = $('banner'); b.innerHTML = html; b.hidden = false; }
+
+/* ---------- Data access ---------- */
+async function getCatalogue(){
+  if (catalogue) return catalogue;
+  if (!live) return (catalogue = DEMO_BREACHES.slice());
+  const r = await fetch('api/breaches');
+  if (!r.ok) throw new Error('The breach catalogue could not be loaded (HTTP '+r.status+'). Try again in a minute.');
+  return (catalogue = await r.json());
+}
+async function lookupEmail(account){
+  if (!live) {
+    const names = DEMO_ACCOUNTS[account.toLowerCase()] || [];
+    return DEMO_BREACHES.filter(b => names.includes(b.Name));
+  }
+  const r = await fetch('api/email?account=' + encodeURIComponent(account));
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(j.error || ('Lookup failed (HTTP '+r.status+').'));
+  return j.breaches || [];
+}
+async function sha1(text){
+  const buf = await crypto.subtle.digest('SHA-1', new TextEncoder().encode(text));
+  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2,'0')).join('').toUpperCase();
+}
+async function lookupPassword(hash){
+  if (!live) return DEMO_HASHES[hash] || 0;
+  const prefix = hash.slice(0,5), suffix = hash.slice(5);
+  const r = await fetch('api/range/' + prefix);
+  if (!r.ok) throw new Error('The password service did not respond (HTTP '+r.status+'). Try again shortly.');
+  const body = await r.text();
+  for (const line of body.split('\n')) {
+    const [s, c] = line.trim().split(':');
+    if (s === suffix) return parseInt(c, 10) || 0;
+  }
+  return 0;
+}
+
+/* ---------- Rendering ---------- */
+const results = $('results');
+function clear(){ results.replaceChildren(); }
+function errorBox(msg){ const d = el('div','err'); d.append(el('b',null,'Something went wrong. '), document.createTextNode(msg)); results.replaceChildren(d); }
+
+function breachCard(b){
+  const c = el('article','breach');
+  const h = el('div','h');
+  h.append(el('h4',null,b.Title || b.Name), el('span','dom', b.Domain || 'No domain'));
+  const m = el('div','meta');
+  const add = (label, val) => { const s = el('span'); s.append(document.createTextNode(label+' '), el('b',null,val)); m.append(s); };
+  add('Breached', fdate(b.BreachDate)); add('Accounts', fmt(b.PwnCount)); add('Added', fdate(b.AddedDate));
+  c.append(h, m);
+  const d = strip(b.Description); if (d) c.append(el('p','desc',d));
+  const chips = el('div','chips');
+  if (b.IsVerified === false) chips.append(el('span','chip flag','Unverified'));
+  if (b.IsSensitive) chips.append(el('span','chip flag','Sensitive'));
+  if (b.IsFabricated) chips.append(el('span','chip flag','Likely fabricated'));
+  (b.DataClasses||[]).forEach(dc => chips.append(el('span','chip'+(HOT.has(dc)?' hot':''),dc)));
+  c.append(chips);
+  return c;
+}
+
+function renderEmail(account, breaches){
+  clear();
+  const v = el('div','verdict '+(breaches.length?'bad':'good'));
+  v.append(el('span','k', account));
+  if (breaches.length) {
+    breaches.sort((a,b) => (b.BreachDate||'').localeCompare(a.BreachDate||''));
+    const classes = new Set(breaches.flatMap(b => b.DataClasses||[]));
+    const hot = [...classes].filter(c => HOT.has(c));
+    const first = breaches[breaches.length-1].BreachDate.slice(0,4);
+    v.append(el('h2',null,'Found in '+breaches.length+' breach'+(breaches.length>1?'es':'')));
+    v.append(el('p',null,'Exposed since '+first+'. '+classes.size+' kinds of data leaked'+(hot.length?', including '+hot.slice(0,3).join(', ').toLowerCase():'')+'.'));
+    results.append(v);
+    const todo = el('div','todo'); todo.append(el('h3',null,'What to do now'));
+    const ol = el('ol');
+    const steps = [];
+    if (classes.has('Passwords')) steps.push('Change the password on each affected site, and anywhere else you reused it.');
+    steps.push('Turn on two-factor authentication for your email account first, then for banking and shopping.');
+    steps.push('Use a password manager so every site gets its own password.');
+    if (hot.some(h => /Passport|Government|Social security|Bank|Credit/.test(h))) steps.push('Watch statements and official notices for misuse of the identity or financial details listed below.');
+    steps.push('Be wary of emails that mention these services. Breached lists fuel targeted phishing.');
+    steps.forEach(s => ol.append(el('li',null,s)));
+    todo.append(ol); results.append(todo);
+    const sh = el('div','secHead'); sh.append(el('h3',null,'Breaches'), el('span',null,'Newest first'));
+    const list = el('div','list'); breaches.forEach(b => list.append(breachCard(b)));
+    results.append(sh, list);
+  } else {
+    v.append(el('h2',null,'No breaches found'));
+    v.append(el('p',null,'This address does not appear in any breach in the catalogue. Keep using unique passwords and two-factor authentication, since many breaches are never made public.'));
+    results.append(v);
+  }
+}
+
+function renderPassword(hash, count){
+  clear();
+  const v = el('div','verdict '+(count?'bad':'good'));
+  v.append(el('span','k','Password check'));
+  if (count) {
+    v.append(el('h2',null,'Seen '+fmt(count)+' time'+(count>1?'s':'')+' in breaches'));
+    v.append(el('p',null,'Attackers try known passwords first. Stop using this one anywhere it is in use, and replace it with a long, unique passphrase.'+(live?'':' (Sample count.)')));
+  } else {
+    v.append(el('h2',null,'Not found in breach data'));
+    v.append(el('p',null,'That is good news, but it does not make a password strong. Prefer four or more random words, or let a password manager generate one.'));
+  }
+  results.append(v);
+  const hb = el('div','hash');
+  hb.append(el('div','legend-title','SHA-1 of what you typed'));
+  const row = el('div','row'); row.append(el('span','pre',hash.slice(0,5)), el('span','suf',hash.slice(5)));
+  const lg = el('div','legend');
+  const item = (cls, txt) => { const s = el('span'); const sw = el('span','sw'); sw.style.background = cls; s.append(sw, document.createTextNode(txt)); return s; };
+  lg.append(item('var(--accent)','First 5 characters: the only part sent'), item('var(--muted)','Remaining 35: compared on this device'));
+  hb.append(row, lg);
+  hb.firstChild.style.cssText = 'font:500 .75rem var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)';
+  results.append(hb);
+}
+
+let catShown = 40;
+async function renderCatalogue(reset){
+  if (reset) catShown = 40;
+  let data;
+  try { data = await getCatalogue(); } catch(e){ return errorBox(e.message); }
+  const q = $('catSearch').value.trim().toLowerCase();
+  const sort = $('catSort').value;
+  let list = data.filter(b => !q || (b.Title||'').toLowerCase().includes(q) || (b.Domain||'').toLowerCase().includes(q) || (b.Name||'').toLowerCase().includes(q));
+  const key = {added:b=>b.AddedDate||'', date:b=>b.BreachDate||''}[sort];
+  list.sort(sort==='size' ? (a,b)=>b.PwnCount-a.PwnCount : (a,b)=>key(b).localeCompare(key(a)));
+  const total = data.reduce((s,b) => s + (b.PwnCount||0), 0);
+  clear();
+  const sh = el('div','secHead');
+  sh.append(el('h3',null, live ? 'Breach catalogue' : 'Sample catalogue'), el('span',null, fmt(data.length)+' breaches · '+compact(total)+' accounts'+(q?' · '+fmt(list.length)+' match':'')));
+  const wrap = el('div','list');
+  list.slice(0,catShown).forEach(b => wrap.append(breachCard(b)));
+  results.append(sh, wrap);
+  if (!list.length) results.append(el('p','hint','No breaches match “'+q+'”.'));
+  if (list.length > catShown) {
+    const m = el('button','more','Show '+Math.min(40,list.length-catShown)+' more');
+    m.type = 'button'; m.onclick = () => { catShown += 40; renderCatalogue(false); };
+    results.append(m);
+  }
+}
+
+/* ---------- Wiring ---------- */
+function setHint(){
+  const h = $('hint'); h.replaceChildren();
+  if (tab === 'email' && !live) {
+    h.append('Sample accounts: ');
+    ['test@example.com','ana@example.org','clean@example.net'].forEach((a,i) => {
+      const b = el('button',null,a); b.type='button'; b.onclick = () => { $('emailInput').value = a; $('emailForm').requestSubmit(); };
+      if (i) h.append(', '); h.append(b);
+    });
+  } else if (tab === 'pw') {
+    h.textContent = live ? 'Hashed in your browser. Only a 5-character hash prefix goes over the network.' : 'Try “password” or “qwerty”. Hashed in your browser either way.';
+  } else h.textContent = tab === 'cat' ? 'Every breach in the dataset, with what was exposed.' : 'Enter the address you use to sign up for services.';
+}
+function switchTab(t){
+  tab = t;
+  document.querySelectorAll('.tab').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab===t)));
+  $('emailForm').hidden = t!=='email'; $('pwForm').hidden = t!=='pw'; $('catForm').hidden = t!=='cat';
+  setHint();
+  if (t === 'cat') renderCatalogue(true);
+  else if (t === 'pw') clear();
+  else if (t === 'email') { clear(); if (live) showRecent(); }
+}
+document.querySelectorAll('.tab').forEach(b => b.addEventListener('click', () => switchTab(b.dataset.tab)));
+
+async function showRecent(){
+  try {
+    const data = (await getCatalogue()).slice().sort((a,b)=>(b.AddedDate||'').localeCompare(a.AddedDate||'')).slice(0,5);
+    if (tab !== 'email' || results.childElementCount) return;
+    const sh = el('div','secHead'); sh.append(el('h3',null,'Recently added breaches'), el('span',null,'Latest 5'));
+    const list = el('div','list'); data.forEach(b => list.append(breachCard(b)));
+    results.append(sh, list);
+  } catch(e){}
+}
+
+$('emailForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const account = $('emailInput').value.trim();
+  if (!EMAIL_RE.test(account)) return errorBox('That does not look like an email address. Check for typos and try again.');
+  if (live && !emailLookup) return errorBox('Email lookups need an HIBP API key on the server. Set HIBP_API_KEY and restart it.');
+  const btn = $('emailGo'); btn.disabled = true; btn.textContent = 'Checking…';
+  try { renderEmail(account, await lookupEmail(account)); } catch(err){ errorBox(err.message); }
+  finally { btn.disabled = false; btn.textContent = 'Check email'; }
+});
+$('pwForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const pw = $('pwInput').value;
+  if (!pw) return errorBox('Type a password to check it.');
+  if (!(window.crypto && crypto.subtle)) return errorBox('This browser cannot hash locally here. Open the page over HTTPS or on localhost.');
+  const btn = $('pwGo'); btn.disabled = true; btn.textContent = 'Checking…';
+  try { const h = await sha1(pw); renderPassword(h, await lookupPassword(h)); } catch(err){ errorBox(err.message); }
+  finally { btn.disabled = false; btn.textContent = 'Check password'; }
+});
+$('pwToggle').addEventListener('click', () => {
+  const i = $('pwInput'); const show = i.type === 'password'; i.type = show ? 'text' : 'password'; $('pwToggle').textContent = show ? 'Hide' : 'Show';
+});
+let t; $('catSearch').addEventListener('input', () => { clearTimeout(t); t = setTimeout(() => renderCatalogue(true), 150); });
+$('catSort').addEventListener('change', () => renderCatalogue(true));
+
+detect().then(() => {
+  setHint();
+  if (!live) { $('emailInput').value = 'test@example.com'; lookupEmail('test@example.com').then(b => renderEmail('test@example.com', b)); }
+  else showRecent();
+});
+})();
+</script>
+</body>
+</html>
