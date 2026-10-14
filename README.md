@@ -29,7 +29,7 @@ Open http://localhost:3000.
 
 Get a key at https://haveibeenpwned.com/API/Key and put it in `.env` as `HIBP_API_KEY=...`.
 
-**Without a key, email lookups still work for free** through [XposedOrNot](https://xposedornot.com)'s public API (`/v1/breach-analytics`). The browser calls it directly, so each visitor gets their own free allowance (about 25 checks an hour and 100 a day per IP). If the browser call is blocked, the page falls back to `/api/xon` on the server, which shares one allowance across all visitors. XposedOrNot's free API is meant for personal and low-volume use; for heavier use, add an HIBP key or a paid XposedOrNot plan. Once `HIBP_API_KEY` is set, email lookups switch to HIBP automatically.
+**Without a key, email lookups still work for free.** The page queries two free sources at once and merges the results: [XposedOrNot](https://xposedornot.com) (`/v1/breach-analytics`) and [LeakCheck](https://leakcheck.io)'s public API (a "Powered by LeakCheck" link is required and shown in the footer). Each result is matched against the free HIBP breach list to add its proper name, logo, description and exposed data. The browser calls both sources directly, so each visitor gets their own free allowance; if a call is blocked, the page falls back to `/api/xon` and `/api/leakcheck` on the server. Free coverage can differ from HIBP's. Once `HIBP_API_KEY` is set, email lookups switch to HIBP automatically.
 
 ## How the password check stays private (k-anonymity)
 

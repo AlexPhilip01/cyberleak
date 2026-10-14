@@ -41,6 +41,8 @@ http.createServer((req, res) => {
     return api.respond(res, () => api.email(url.searchParams.get('account'), api.clientIp(req)), 'email');
   if (url.pathname === '/api/xon')
     return api.respond(res, () => api.xon(url.searchParams.get('account'), api.clientIp(req)), 'xon');
+  if (url.pathname === '/api/leakcheck')
+    return api.respond(res, () => api.leakcheck(url.searchParams.get('account'), api.clientIp(req)), 'leakcheck');
   const m = url.pathname.match(/^\/api\/range\/([^/]+)$/);
   if (m) return api.respond(res, () => api.range(m[1]), 'range');
 
@@ -49,5 +51,5 @@ http.createServer((req, res) => {
   res.end(JSON.stringify({ error: 'Not found.' }));
 }).listen(PORT, () => {
   console.log(`CyberLeak running at http://localhost:${PORT}`);
-  console.log(process.env.HIBP_API_KEY ? 'Email lookups: enabled' : 'Email lookups: disabled (set HIBP_API_KEY to enable)');
+  console.log(process.env.HIBP_API_KEY ? 'Email lookups: enabled' : 'Email lookups: free sources (XposedOrNot + LeakCheck). Set HIBP_API_KEY to use HIBP instead.');
 });
