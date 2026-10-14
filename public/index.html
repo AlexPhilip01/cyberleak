@@ -14,6 +14,7 @@
   --bg:#eef1f4; --surface:#ffffff; --ink:#15202b; --muted:#5a6775; --line:#d6dde4;
   --accent:#2448c9; --accent-ink:#ffffff; --danger:#b9321c; --danger-bg:#fbe9e5;
   --safe:#1b7a4c; --safe-bg:#e3f4ea; --warn:#9a5c00; --warn-bg:#fbf0dc;
+  --on-danger:#ffffff; --on-safe:#ffffff;
   --f-display:"Archivo","Arial Narrow",system-ui,sans-serif;
   --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
   --f-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
@@ -21,11 +22,11 @@
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#0e141a; --surface:#16202a; --ink:#e4eaf0; --muted:#97a4b1; --line:#283442;
   --accent:#86a5ff; --accent-ink:#0b1430; --danger:#ff8a72; --danger-bg:#3a1a14;
-  --safe:#5bd297; --safe-bg:#11301f; --warn:#f2b552; --warn-bg:#33260f; color-scheme:dark}}
+  --safe:#5bd297; --safe-bg:#11301f; --warn:#f2b552; --warn-bg:#33260f; --on-danger:#2a0b05; --on-safe:#04210f; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#0e141a; --surface:#16202a; --ink:#e4eaf0; --muted:#97a4b1; --line:#283442;
   --accent:#86a5ff; --accent-ink:#0b1430; --danger:#ff8a72; --danger-bg:#3a1a14;
-  --safe:#5bd297; --safe-bg:#11301f; --warn:#f2b552; --warn-bg:#33260f; color-scheme:dark}
+  --safe:#5bd297; --safe-bg:#11301f; --warn:#f2b552; --warn-bg:#33260f; --on-danger:#2a0b05; --on-safe:#04210f; color-scheme:dark}
 
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--ink);font:16px/1.55 var(--f-body);padding-inline:16px}
@@ -104,7 +105,45 @@ h1{font-family:var(--f-display);font-stretch:85%;font-weight:750;font-size:clamp
 footer{color:var(--muted);font-size:.82rem;border-top:1px solid var(--line);padding-top:16px;display:grid;gap:6px}
 footer p{margin:0;max-width:70ch}
 footer a{color:var(--accent)}
-@media (prefers-reduced-motion:no-preference){.verdict,.breach{animation:rise .25s ease-out both}}
+
+/* Email result: solid verdict banner, stats strip, breach timeline */
+.banner-v{border-radius:14px;padding:26px 24px;display:grid;gap:8px;text-align:left}
+.banner-v.bad{background:var(--danger);color:var(--on-danger)}
+.banner-v.good{background:var(--safe);color:var(--on-safe)}
+.banner-v .k{font:500 .78rem var(--f-mono);letter-spacing:.08em;text-transform:uppercase;opacity:.85;overflow-wrap:anywhere}
+.banner-v h2{margin:0;font-family:var(--f-display);font-stretch:78%;font-weight:800;font-size:clamp(2rem,6vw,2.9rem);line-height:1;text-wrap:balance}
+.banner-v p{margin:0;max-width:60ch;font-size:1.02rem}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(9rem,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.stat{background:var(--surface);padding:14px 16px;display:grid;gap:2px}
+.stat b{font-family:var(--f-display);font-stretch:85%;font-weight:750;font-size:1.6rem;line-height:1.1;font-variant-numeric:tabular-nums}
+.stat span{font-size:.82rem;color:var(--muted)}
+.tl{display:grid}
+.tl-item{display:grid;grid-template-columns:6.5rem minmax(0,1fr);gap:0 18px}
+.tl-date{text-align:right;padding-top:20px;font:500 .85rem var(--f-mono);color:var(--muted);font-variant-numeric:tabular-nums}
+.tl-body{position:relative;border-left:2px solid var(--line);padding:0 0 18px 22px;min-width:0}
+.tl-item:last-child .tl-body{padding-bottom:0}
+.tl-body::before{content:"";position:absolute;left:-8px;top:22px;width:14px;height:14px;border-radius:50%;background:var(--danger);box-shadow:0 0 0 4px var(--bg)}
+.tl-card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px;display:grid;grid-template-columns:52px minmax(0,1fr);gap:14px;align-items:start}
+.logo{width:52px;height:52px;border-radius:10px;background:var(--bg);border:1px solid var(--line);display:grid;place-items:center;overflow:hidden;font:800 1.3rem var(--f-display);color:var(--muted);text-transform:uppercase}
+.logo img{width:100%;height:100%;object-fit:contain;background:#fff}
+.tl-card .txt{display:grid;gap:6px;min-width:0}
+.tl-card h4{margin:0;font:650 1.1rem var(--f-body)}
+.tl-card h4 small{font:400 .82rem var(--f-mono);color:var(--muted);margin-left:8px;overflow-wrap:anywhere}
+.tl-card p{margin:0;font-size:.93rem;color:var(--muted)}
+.comp{font-size:.88rem}
+.comp > b{display:block;font-weight:600;margin-bottom:4px}
+.protect{display:grid;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr));gap:12px}
+.protect div{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px;display:grid;gap:4px;align-content:start}
+.protect h4{margin:0;font:650 .98rem var(--f-body)}
+.protect p{margin:0;font-size:.9rem;color:var(--muted)}
+@media (max-width:560px){
+  .tl-item{grid-template-columns:minmax(0,1fr)}
+  .tl-date{text-align:left;padding:0 0 6px 24px}
+  .tl-body::before{top:-22px}
+  .tl-card{grid-template-columns:40px minmax(0,1fr)}
+  .logo{width:40px;height:40px;font-size:1rem}
+}
+@media (prefers-reduced-motion:no-preference){.verdict,.banner-v,.tl-card,.breach{animation:rise .25s ease-out both}}
 @keyframes rise{from{transform:translateY(4px)}to{transform:none}}
 body{margin:0}[hidden]{display:none!important}
 </style>
@@ -238,7 +277,7 @@ async function lookupXon(account){
   return list.map(b => ({
     Name: b.breach, Title: b.breach, Domain: b.domain || '',
     BreachDate: String(b.xposed_date || ''), AddedDate: null,
-    PwnCount: Number(b.xposed_records) || 0, Description: b.details || '',
+    PwnCount: Number(b.xposed_records) || 0, Logo: b.logo || '', Description: b.details || '',
     DataClasses: String(b.xposed_data || '').split(/[;,]/).map(x => x.trim()).filter(Boolean),
     IsVerified: String(b.verified).toLowerCase() === 'yes'
   }));
@@ -283,47 +322,97 @@ function breachCard(b){
   return c;
 }
 
+function logoEl(b){
+  const box = el('div','logo');
+  const fallback = () => { box.replaceChildren(document.createTextNode((b.Title||b.Name||'?').trim().charAt(0))); };
+  const src = b.Logo || b.LogoPath;
+  if (src && /^https:\/\//.test(src)) {
+    const img = new Image(); img.alt = ''; img.loading = 'lazy'; img.referrerPolicy = 'no-referrer';
+    img.onerror = fallback; img.src = src; box.append(img);
+  } else fallback();
+  return box;
+}
+const mdate = d => { d = String(d||''); if (/^\d{4}$/.test(d)) return d; if (!d) return 'Unknown';
+  return new Date(d.slice(0,10)+'T00:00:00Z').toLocaleDateString('en-GB',{month:'short',year:'numeric',timeZone:'UTC'}); };
+
 function renderEmail(account, breaches){
   clear();
-  const v = el('div','verdict '+(breaches.length?'bad':'good'));
+  const n = breaches.length;
+  const v = el('div','banner-v '+(n?'bad':'good'));
   v.append(el('span','k', account));
-  if (breaches.length) {
-    breaches.sort((a,b) => (b.BreachDate||'').localeCompare(a.BreachDate||''));
-    const classes = new Set(breaches.flatMap(b => b.DataClasses||[]));
-    const hot = [...classes].filter(c => HOT.has(c));
-    const first = breaches[breaches.length-1].BreachDate.slice(0,4);
-    v.append(el('h2',null,'Found in '+breaches.length+' breach'+(breaches.length>1?'es':'')));
-    v.append(el('p',null,'Exposed since '+first+'. '+classes.size+' kinds of data leaked'+(hot.length?', including '+hot.slice(0,3).join(', ').toLowerCase():'')+'.'));
+  if (!n) {
+    v.append(el('h2',null,'All clear: no breaches found'));
+    v.append(el('p',null,'This address does not appear in any breach we can search. Many breaches are never made public, so keep using unique passwords and two-factor authentication.'));
     results.append(v);
-    const todo = el('div','todo'); todo.append(el('h3',null,'What to do now'));
-    const ol = el('ol');
-    const steps = [];
-    if (classes.has('Passwords')) steps.push('Change the password on each affected site, and anywhere else you reused it.');
-    steps.push('Turn on two-factor authentication for your email account first, then for banking and shopping.');
-    steps.push('Use a password manager so every site gets its own password.');
-    if (hot.some(h => /Passport|Government|Social security|Bank|Credit/.test(h))) steps.push('Watch statements and official notices for misuse of the identity or financial details listed below.');
-    steps.push('Be wary of emails that mention these services. Breached lists fuel targeted phishing.');
-    steps.forEach(s => ol.append(el('li',null,s)));
-    todo.append(ol); results.append(todo);
-    const sh = el('div','secHead'); sh.append(el('h3',null,'Breaches'), el('span',null,'Newest first'));
-    const list = el('div','list'); breaches.forEach(b => list.append(breachCard(b)));
-    results.append(sh, list);
-  } else {
-    v.append(el('h2',null,'No breaches found'));
-    v.append(el('p',null,'This address does not appear in any breach in the catalogue. Keep using unique passwords and two-factor authentication, since many breaches are never made public.'));
-    results.append(v);
+    results.append(protectBlock(false));
+    return;
   }
+  breaches.sort((a,b) => (b.BreachDate||'').localeCompare(a.BreachDate||''));
+  const classes = new Set(breaches.flatMap(b => b.DataClasses||[]));
+  const first = String(breaches[n-1].BreachDate||'').slice(0,4) || 'Unknown';
+  const total = breaches.reduce((s,b) => s + (b.PwnCount||0), 0);
+  v.append(el('h2',null,'Exposed in '+n+' data breach'+(n>1?'es':'')));
+  v.append(el('p',null,'This email address turned up in the breaches listed below. Review where your data leaked and what was taken, then follow the steps at the end.'));
+  results.append(v);
+
+  const st = el('div','stats');
+  const stat = (num, label) => { const d = el('div','stat'); d.append(el('b',null,num), el('span',null,label)); st.append(d); };
+  stat(String(n), 'Data breaches');
+  stat(first, 'First exposed');
+  stat(String(classes.size), 'Kinds of data leaked');
+  if (total) stat(compact(total), 'Accounts in these breaches');
+  results.append(st);
+
+  const sh = el('div','secHead'); sh.append(el('h3',null,'Breach timeline'), el('span',null, n+' breach'+(n>1?'es':'')+' · newest first'));
+  results.append(sh);
+  const tl = el('div','tl');
+  breaches.forEach(b => {
+    const item = el('div','tl-item');
+    const body = el('div','tl-body');
+    const card = el('article','tl-card');
+    const txt = el('div','txt');
+    const h = el('h4',null,b.Title || b.Name);
+    if (b.Domain) h.append(el('small',null,b.Domain));
+    txt.append(h);
+    const d = strip(b.Description); if (d) txt.append(el('p',null,d));
+    const comp = el('div','comp'); comp.append(el('b',null,'Compromised data'));
+    const chips = el('div','chips');
+    if (b.IsVerified === false) chips.append(el('span','chip flag','Unverified'));
+    if (b.IsSensitive) chips.append(el('span','chip flag','Sensitive'));
+    (b.DataClasses||[]).forEach(dc => chips.append(el('span','chip'+(HOT.has(dc)?' hot':''),dc)));
+    comp.append(chips); txt.append(comp);
+    card.append(logoEl(b), txt);
+    body.append(card);
+    item.append(el('div','tl-date', mdate(b.BreachDate)), body);
+    tl.append(item);
+  });
+  results.append(tl);
+  results.append(protectBlock(classes.has('Passwords'), [...classes].some(c => /Passport|Government|Social security|Bank|Credit/.test(c))));
+}
+
+function protectBlock(pwLeaked, idLeaked){
+  const wrap = el('div'); wrap.style.display = 'grid'; wrap.style.gap = '12px';
+  const sh = el('div','secHead'); sh.append(el('h3',null,'Stay protected'), el('span',null,'Recommended next steps'));
+  const g = el('div','protect');
+  const tip = (t, p) => { const d = el('div'); d.append(el('h4',null,t), el('p',null,p)); g.append(d); };
+  if (pwLeaked) tip('Change exposed passwords', 'Update the password on each affected site, and anywhere else you used the same one.');
+  tip('Use a password manager', 'Let it create a different, long password for every site so one leak cannot unlock the rest.');
+  tip('Turn on two-factor sign-in', 'Start with your email account, then banking and shopping. A stolen password alone is then not enough.');
+  if (idLeaked) tip('Watch your accounts', 'Check bank statements and official notices for misuse of the identity or financial details leaked.');
+  tip('Expect targeted phishing', 'Leaked lists fuel scam emails that mention these services. Go to sites directly instead of clicking links.');
+  wrap.append(sh, g);
+  return wrap;
 }
 
 function renderPassword(hash, count){
   clear();
-  const v = el('div','verdict '+(count?'bad':'good'));
+  const v = el('div','banner-v '+(count?'bad':'good'));
   v.append(el('span','k','Password check'));
   if (count) {
     v.append(el('h2',null,'Seen '+fmt(count)+' time'+(count>1?'s':'')+' in breaches'));
     v.append(el('p',null,'Attackers try known passwords first. Stop using this one anywhere it is in use, and replace it with a long, unique passphrase.'+(live?'':' (Sample count.)')));
   } else {
-    v.append(el('h2',null,'Not found in breach data'));
+    v.append(el('h2',null,'All clear: not found in breach data'));
     v.append(el('p',null,'That is good news, but it does not make a password strong. Prefer four or more random words, or let a password manager generate one.'));
   }
   results.append(v);
