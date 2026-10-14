@@ -196,7 +196,7 @@ async function detect(){
   if (!live) {
     showBanner('<strong>Preview mode.</strong> No server is connected, so this page uses made-up sample breaches. Run the included server to check real accounts and passwords.');
   } else if (!emailLookup) {
-    showBanner('<strong>Email lookups are off.</strong> Add an HIBP API key to the server to enable them. Password checks and the breach catalogue work without one.');
+    showBanner('<strong>Email lookups are not set up on this site yet.</strong> Password checks and the breach catalogue work now.');
   }
 }
 function showBanner(html){ const b = $('banner'); b.innerHTML = html; b.hidden = false; }
@@ -377,7 +377,7 @@ $('emailForm').addEventListener('submit', async e => {
   e.preventDefault();
   const account = $('emailInput').value.trim();
   if (!EMAIL_RE.test(account)) return errorBox('That does not look like an email address. Check for typos and try again.');
-  if (live && !emailLookup) return errorBox('Email lookups need an HIBP API key on the server. Set HIBP_API_KEY and restart it.');
+  if (live && !emailLookup) { clear(); $('banner').scrollIntoView({block:'nearest'}); return; }
   const btn = $('emailGo'); btn.disabled = true; btn.textContent = 'Checking…';
   try { renderEmail(account, await lookupEmail(account)); } catch(err){ errorBox(err.message); }
   finally { btn.disabled = false; btn.textContent = 'Check email'; }
