@@ -30,6 +30,11 @@ http.createServer((req, res) => {
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     return res.end(PAGE);
   }
+  const ICONS = { '/favicon.ico': 'image/x-icon', '/favicon.png': 'image/png', '/apple-touch-icon.png': 'image/png' };
+  if (ICONS[url.pathname]) {
+    res.setHeader('Content-Type', ICONS[url.pathname]);
+    return res.end(fs.readFileSync(path.join(__dirname, 'public', url.pathname)));
+  }
   if (url.pathname === '/api/health') return api.respond(res, () => api.health(), 'health');
   if (url.pathname === '/api/breaches') return api.respond(res, () => api.breaches(), 'breaches');
   if (url.pathname === '/api/email')
