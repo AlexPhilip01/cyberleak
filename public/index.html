@@ -196,9 +196,7 @@ footer p{margin:0}
 </main>
 
 <footer>
-  <p>Breach list and password checks: <a href="https://haveibeenpwned.com" rel="noopener">Have I Been Pwned</a> (CC BY 4.0). <span id="emailCredit">Email lookups: <a href="https://xposedornot.com" rel="noopener">XposedOrNot</a> and <a href="https://leakcheck.io" rel="noopener">Powered by LeakCheck</a>.</span></p>
-  <p>Passwords are checked with k-anonymity: only the first 5 characters of their SHA-1 hash leave your device. A clean result does not prove an account is safe.</p>
-  <p>© CyberLeak by <a href="https://www.shieldsecurity.co.in/" rel="noopener">Shield InfoSec</a></p>
+  <p>Data: <a href="https://haveibeenpwned.com" rel="noopener">Have I Been Pwned</a> (CC BY 4.0)<span id="emailCredit"> · <a href="https://xposedornot.com" rel="noopener">XposedOrNot</a> · <a href="https://leakcheck.io" rel="noopener">Powered by LeakCheck</a></span> · © CyberLeak by <a href="https://www.shieldsecurity.co.in/" rel="noopener">Shield InfoSec</a></p>
 </footer>
 
 <script>
@@ -241,7 +239,7 @@ async function detect(){
   b.className = 'badge ' + (live ? 'live' : 'demo');
   b.textContent = live ? 'Live data' : 'Sample data';
   if (!live) { const n = $('note'); n.innerHTML = '<strong>Preview mode.</strong> No server is connected, so this page shows made-up sample breaches.'; n.hidden = false; }
-  if (live && emailSource === 'hibp') $('emailCredit').textContent = 'Email lookups: Have I Been Pwned.';
+  if (live && emailSource === 'hibp') $('emailCredit').hidden = true;
 }
 
 /* ---------- Data ---------- */
@@ -490,7 +488,7 @@ function setHint(){
   if (tab === 'email' && !live) {
     h.append('Try: ');
     ['test@example.com','ana@example.org','clean@example.net'].forEach((a,i) => { const b = el('button', null, a); b.type = 'button'; b.onclick = () => { $('emailInput').value = a; $('emailForm').requestSubmit(); }; if (i) h.append(', '); h.append(b); });
-  } else if (tab === 'pw') h.textContent = live ? 'Hashed in your browser. Only 5 characters of the hash are sent.' : 'Try “password” or “qwerty”.';
+  } else if (tab === 'pw') h.textContent = 'Your password never leaves this device: only the first 5 characters of its SHA-1 hash are sent.' + (live ? '' : ' Try “password”.');
 }
 function switchTab(t){
   tab = t;
