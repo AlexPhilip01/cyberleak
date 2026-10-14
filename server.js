@@ -34,6 +34,8 @@ http.createServer((req, res) => {
   if (url.pathname === '/api/breaches') return api.respond(res, () => api.breaches(), 'breaches');
   if (url.pathname === '/api/email')
     return api.respond(res, () => api.email(url.searchParams.get('account'), api.clientIp(req)), 'email');
+  if (url.pathname === '/api/xon')
+    return api.respond(res, () => api.xon(url.searchParams.get('account'), api.clientIp(req)), 'xon');
   const m = url.pathname.match(/^\/api\/range\/([^/]+)$/);
   if (m) return api.respond(res, () => api.range(m[1]), 'range');
 
