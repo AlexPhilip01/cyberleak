@@ -23,7 +23,6 @@ http.createServer((req, res) => {
   const url = new URL(req.url, 'http://localhost');
   res.setHeader('Content-Security-Policy', CSP);
   res.setHeader('Referrer-Policy', 'no-referrer');
-  res.setHeader('X-Frame-Options', 'DENY');
   if (req.method !== 'GET') { res.statusCode = 405; return res.end(); }
 
   if (url.pathname === '/' || url.pathname === '/index.html') {

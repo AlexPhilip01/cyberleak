@@ -44,7 +44,7 @@ Get a key at https://haveibeenpwned.com/API/Key and put it in `.env` as `HIBP_AP
 - Email lookups are rate-limited per IP (`EMAIL_LIMIT_PER_MIN`, default 10) to stop the app being used to bulk-scan addresses.
 - The server never logs email addresses or query strings.
 - Breach descriptions from the API contain HTML; the page converts them to plain text before display.
-- Strict security headers (CSP, no framing, no referrer).
+- Strict security headers (CSP, framing only from shieldsecurity.co.in, no referrer).
 
 ## Deploying
 
