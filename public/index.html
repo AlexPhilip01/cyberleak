@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="description" content="Check whether your email or password has appeared in a data breach.">
-<title>Spillcheck</title>
+<title>CyberLeak</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,500..800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
@@ -30,7 +30,7 @@
 
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--ink);font:16px/1.55 var(--f-body);padding-inline:16px}
-.wrap{max-width:46rem;margin:0 auto;padding-block:20px 48px;display:grid;gap:28px}
+.wrap{max-width:1440px;margin:0 auto;padding-block:20px 48px;padding-inline:clamp(0px,3vw,48px);display:grid;gap:32px}
 .top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .mark{font-family:var(--f-display);font-stretch:70%;font-weight:800;font-size:1.5rem;letter-spacing:.01em;text-transform:uppercase}
 .mark span{color:var(--accent)}
@@ -38,8 +38,10 @@ body{background:var(--bg);color:var(--ink);font:16px/1.55 var(--f-body);padding-
 .badge.live{color:var(--safe);border-color:currentColor}
 .badge.demo{color:var(--warn);border-color:currentColor}
 
-.hero{display:grid;gap:16px}
-h1{font-family:var(--f-display);font-stretch:85%;font-weight:750;font-size:clamp(2rem,6vw,3.1rem);line-height:1.02;margin:0;text-wrap:balance;letter-spacing:-.01em}
+.hero{display:grid;gap:24px 56px;align-items:end}
+.intro,.search{display:grid;gap:16px;min-width:0}
+@media (min-width:980px){.hero{grid-template-columns:minmax(0,1.1fr) minmax(0,1fr)}}
+h1{font-family:var(--f-display);font-stretch:85%;font-weight:750;font-size:clamp(2rem,4.6vw,4rem);line-height:1.02;margin:0;text-wrap:balance;letter-spacing:-.01em}
 .lede{margin:0;color:var(--muted);max-width:60ch}
 
 .tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);overflow-x:auto}
@@ -83,7 +85,7 @@ h1{font-family:var(--f-display);font-stretch:85%;font-weight:750;font-size:clamp
 .secHead h3{margin:0;font:600 .8rem var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .secHead span{font-size:.85rem;color:var(--muted);font-variant-numeric:tabular-nums}
 
-.list{display:grid;gap:12px}
+.list{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(min(100%,24rem),1fr))}
 .breach{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px;display:grid;gap:8px;min-width:0}
 .breach .h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
 .breach h4{margin:0;font:650 1.08rem var(--f-body)}
@@ -117,31 +119,44 @@ footer a{color:var(--accent)}
 .stat{background:var(--surface);padding:14px 16px;display:grid;gap:2px}
 .stat b{font-family:var(--f-display);font-stretch:85%;font-weight:750;font-size:1.6rem;line-height:1.1;font-variant-numeric:tabular-nums}
 .stat span{font-size:.82rem;color:var(--muted)}
-.tl{display:grid}
-.tl-item{display:grid;grid-template-columns:6.5rem minmax(0,1fr);gap:0 18px}
-.tl-date{text-align:right;padding-top:20px;font:500 .85rem var(--f-mono);color:var(--muted);font-variant-numeric:tabular-nums}
-.tl-body{position:relative;border-left:2px solid var(--line);padding:0 0 18px 22px;min-width:0}
-.tl-item:last-child .tl-body{padding-bottom:0}
-.tl-body::before{content:"";position:absolute;left:-8px;top:22px;width:14px;height:14px;border-radius:50%;background:var(--danger);box-shadow:0 0 0 4px var(--bg)}
-.tl-card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px;display:grid;grid-template-columns:52px minmax(0,1fr);gap:14px;align-items:start}
-.logo{width:52px;height:52px;border-radius:10px;background:var(--bg);border:1px solid var(--line);display:grid;place-items:center;overflow:hidden;font:800 1.3rem var(--f-display);color:var(--muted);text-transform:uppercase}
+.tl{position:relative;display:grid;gap:8px;padding-block:8px}
+.tl::before{content:"";position:absolute;top:0;bottom:0;left:calc(50% - 1px);width:2px;background:linear-gradient(var(--line),var(--accent) 12%,var(--accent) 88%,var(--line))}
+.tl-item{display:grid;grid-template-columns:minmax(0,1fr) 112px minmax(0,1fr);align-items:start}
+.tl-node{grid-column:2;grid-row:1;justify-self:center;position:relative;z-index:1;margin-top:18px;width:88px;height:88px;border-radius:50%;background:var(--surface);border:2px solid var(--accent);box-shadow:0 0 0 6px var(--bg);display:grid;place-content:center;text-align:center;font:750 .95rem/1.15 var(--f-display);font-stretch:88%;font-variant-numeric:tabular-nums}
+.tl-node span{display:block;font-size:1.05rem}
+.tl-card{grid-row:1;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px 24px;display:grid;gap:14px;min-width:0}
+.tl-item:nth-child(odd) .tl-card{grid-column:1}
+.tl-item:nth-child(even) .tl-card{grid-column:3}
+.tl-item:nth-child(odd) .tl-card::after,.tl-item:nth-child(even) .tl-card::after{content:none}
+.tl-head{display:flex;align-items:center;gap:16px;min-width:0}
+.logo{flex:0 0 auto;width:64px;height:64px;border-radius:12px;background:var(--bg);border:1px solid var(--line);display:grid;place-items:center;overflow:hidden;font:800 1.6rem var(--f-display);color:var(--accent);text-transform:uppercase}
 .logo img{width:100%;height:100%;object-fit:contain;background:#fff}
-.tl-card .txt{display:grid;gap:6px;min-width:0}
-.tl-card h4{margin:0;font:650 1.1rem var(--f-body)}
-.tl-card h4 small{font:400 .82rem var(--f-mono);color:var(--muted);margin-left:8px;overflow-wrap:anywhere}
-.tl-card p{margin:0;font-size:.93rem;color:var(--muted)}
-.comp{font-size:.88rem}
-.comp > b{display:block;font-weight:600;margin-bottom:4px}
+.tl-head h4{margin:0;font:700 1.25rem/1.2 var(--f-body);min-width:0}
+.tl-head small{display:block;font:400 .82rem var(--f-mono);color:var(--muted);overflow-wrap:anywhere;margin-top:2px}
+.tl-card > p{margin:0;font-size:.98rem;line-height:1.6}
+.comp > b{display:block;font-weight:700;margin-bottom:6px}
+.comp ul{margin:0;padding-left:1.25rem;display:grid;grid-template-columns:repeat(auto-fill,minmax(11rem,1fr));gap:6px 18px}
+.comp li{padding-left:2px}
+.comp li::marker{color:var(--accent)}
+.comp li.hot{color:var(--danger);font-weight:600}
+.comp li.hot::marker{color:var(--danger)}
+.details{justify-self:start;appearance:none;background:none;border:1.5px solid var(--accent);color:var(--accent);border-radius:10px;padding:9px 18px;font:600 .92rem var(--f-body);cursor:pointer}
+.details:hover{background:var(--accent);color:var(--accent-ink)}
+.more-info{margin:0;display:grid;grid-template-columns:max-content 1fr;gap:6px 16px;font-size:.9rem;border-top:1px solid var(--line);padding-top:12px}
+.more-info dt{color:var(--muted)}
+.more-info dd{margin:0;font-variant-numeric:tabular-nums}
 .protect{display:grid;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr));gap:12px}
 .protect div{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px;display:grid;gap:4px;align-content:start}
 .protect h4{margin:0;font:650 .98rem var(--f-body)}
 .protect p{margin:0;font-size:.9rem;color:var(--muted)}
-@media (max-width:560px){
-  .tl-item{grid-template-columns:minmax(0,1fr)}
-  .tl-date{text-align:left;padding:0 0 6px 24px}
-  .tl-body::before{top:-22px}
-  .tl-card{grid-template-columns:40px minmax(0,1fr)}
-  .logo{width:40px;height:40px;font-size:1rem}
+@media (max-width:860px){
+  .tl::before{left:35px}
+  .tl-item{grid-template-columns:72px minmax(0,1fr);gap:0 14px}
+  .tl-node{grid-column:1;width:68px;height:68px;font-size:.8rem;margin-top:14px}
+  .tl-node span{font-size:.9rem}
+  .tl-item:nth-child(odd) .tl-card,.tl-item:nth-child(even) .tl-card{grid-column:2}
+  .tl-card{padding:16px 18px}
+  .logo{width:48px;height:48px;font-size:1.2rem}
 }
 @media (prefers-reduced-motion:no-preference){.verdict,.banner-v,.tl-card,.breach{animation:rise .25s ease-out both}}
 @keyframes rise{from{transform:translateY(4px)}to{transform:none}}
@@ -151,13 +166,16 @@ body{margin:0}[hidden]{display:none!important}
 <body>
 <div class="wrap">
   <header class="top">
-    <div class="mark">Spill<span>check</span></div>
+    <div class="mark">Cyber<span>Leak</span></div>
     <span id="modeBadge" class="badge">Connecting…</span>
   </header>
 
   <section class="hero">
+    <div class="intro">
     <h1>Has your account turned up in a data breach?</h1>
     <p class="lede">Check an email address against known breaches, or test whether a password appears in leaked password lists. Your password never leaves this device in full.</p>
+    </div>
+    <div class="search">
 
     <div class="tabs" role="tablist">
       <button class="tab" role="tab" id="tab-email" aria-selected="true" data-tab="email">Email address</button>
@@ -188,6 +206,7 @@ body{margin:0}[hidden]{display:none!important}
     </div>
 
     <p class="hint" id="hint"></p>
+    </div>
   </section>
 
   <div id="banner" class="banner" hidden></div>
@@ -368,22 +387,37 @@ function renderEmail(account, breaches){
   const tl = el('div','tl');
   breaches.forEach(b => {
     const item = el('div','tl-item');
-    const body = el('div','tl-body');
+    const node = el('div','tl-node');
+    const md = mdate(b.BreachDate).split(' ');
+    if (md.length === 2) { node.append(document.createTextNode(md[0])); node.append(el('span',null,md[1])); }
+    else node.append(el('span',null,md[0]));
     const card = el('article','tl-card');
-    const txt = el('div','txt');
-    const h = el('h4',null,b.Title || b.Name);
-    if (b.Domain) h.append(el('small',null,b.Domain));
-    txt.append(h);
-    const d = strip(b.Description); if (d) txt.append(el('p',null,d));
-    const comp = el('div','comp'); comp.append(el('b',null,'Compromised data'));
-    const chips = el('div','chips');
-    if (b.IsVerified === false) chips.append(el('span','chip flag','Unverified'));
-    if (b.IsSensitive) chips.append(el('span','chip flag','Sensitive'));
-    (b.DataClasses||[]).forEach(dc => chips.append(el('span','chip'+(HOT.has(dc)?' hot':''),dc)));
-    comp.append(chips); txt.append(comp);
-    card.append(logoEl(b), txt);
-    body.append(card);
-    item.append(el('div','tl-date', mdate(b.BreachDate)), body);
+    const head = el('div','tl-head');
+    const t = el('div'); t.style.minWidth = '0';
+    t.append(el('h4',null,b.Title || b.Name));
+    if (b.Domain) t.append(el('small',null,b.Domain));
+    head.append(logoEl(b), t);
+    card.append(head);
+    const d = strip(b.Description); if (d) card.append(el('p',null,d));
+    if ((b.DataClasses||[]).length) {
+      const comp = el('div','comp'); comp.append(el('b',null,'Compromised data:'));
+      const ul = el('ul');
+      b.DataClasses.forEach(dc => ul.append(el('li', HOT.has(dc)?'hot':null, dc)));
+      comp.append(ul); card.append(comp);
+    }
+    const info = el('dl','more-info'); info.hidden = true;
+    const row = (k,v) => { if (v) info.append(el('dt',null,k), el('dd',null,v)); };
+    row('Breach date', fdate(b.BreachDate));
+    row('Accounts affected', b.PwnCount ? fmt(b.PwnCount) : '');
+    row('Added to database', b.AddedDate ? fdate(b.AddedDate) : '');
+    row('Website', b.Domain);
+    row('Verified', b.IsVerified === false ? 'No, unconfirmed by the company' : 'Yes');
+    if (b.IsSensitive) row('Sensitive', 'Yes');
+    const btn = el('button','details','View details'); btn.type = 'button';
+    btn.setAttribute('aria-expanded','false');
+    btn.onclick = () => { info.hidden = !info.hidden; btn.textContent = info.hidden ? 'View details' : 'Hide details'; btn.setAttribute('aria-expanded', String(!info.hidden)); };
+    card.append(info, btn);
+    item.append(node, card);
     tl.append(item);
   });
   results.append(tl);

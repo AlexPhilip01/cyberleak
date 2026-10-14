@@ -1,4 +1,4 @@
-# Spillcheck
+# CyberLeak
 
 A self-hosted breach checker in the spirit of Have I Been Pwned. It lets people:
 

@@ -43,6 +43,6 @@ http.createServer((req, res) => {
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
   res.end(JSON.stringify({ error: 'Not found.' }));
 }).listen(PORT, () => {
-  console.log(`Spillcheck running at http://localhost:${PORT}`);
+  console.log(`CyberLeak running at http://localhost:${PORT}`);
   console.log(process.env.HIBP_API_KEY ? 'Email lookups: enabled' : 'Email lookups: disabled (set HIBP_API_KEY to enable)');
 });

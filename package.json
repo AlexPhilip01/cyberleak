@@ -1,5 +1,5 @@
 {
-  "name": "spillcheck",
+  "name": "cyberleak",
   "version": "1.0.0",
   "description": "Self-hosted data breach and leaked password checker built on the Have I Been Pwned APIs",
   "main": "server.js",
